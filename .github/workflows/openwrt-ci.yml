@@ -8,8 +8,13 @@
 name: OpenWrt-CI
 
 on:
-  schedule:
-    - cron: 0 20 * * *
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
 
 permissions:
   contents: read
@@ -44,19 +49,29 @@ jobs:
 
       - name: Update feeds
         run: |
-          sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
+          # 16M 固件 不用任何配置
+          #
+          #
+
+          # 32M 固件
+          # sed -i 's/<0x50000 0xfb0000>/<0xa0000 0x1fb0000>/g' target/linux/ramips/dts/mt7621_youhua_wr1200js.dts
+          # sed -i 's/16064k/32448kk/g' target/linux/ramips/image/mt7621.mk
+
+          # 64M 固件 默认
+          sed -i 's/<0x50000 0xfb0000>/<0xa0000 0x3fb0000>/g' target/linux/ramips/dts/mt7621_youhua_wr1200js.dts
+          sed -i 's/16064k/65216k/g' target/linux/ramips/image/mt7621.mk
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
       - name: Generate configuration file
-        run: make defconfig
+        run: make oldconfig
 
       - name: Download packages
         run: make download -j16
 
       - name: Compile firmware
         run: |
-          make -j$(nproc) || make -j1 V=s
+          make -j1 V=s
           echo "======================="
           echo "Space usage:"
           echo "======================="
