@@ -54,11 +54,11 @@ jobs:
           #
 
           # 32M 固件
-          # sed -i 's/<0x50000 0xfb0000>/<0xa0000 0x1fb0000>/g' target/linux/ramips/dts/mt7621_youhua_wr1200js.dts
-          # sed -i 's/16064k/32448kk/g' target/linux/ramips/image/mt7621.mk
+          # sed -i 's/<0x50000 0xfb0000>/<0x50000 0x1fb0000>/g' target/linux/ramips/dts/mt7621_youhua_wr1200js.dts
+          # sed -i 's/16064k/32448k/g' target/linux/ramips/image/mt7621.mk
 
           # 64M 固件 默认
-          sed -i 's/<0x50000 0xfb0000>/<0xa0000 0x3fb0000>/g' target/linux/ramips/dts/mt7621_youhua_wr1200js.dts
+          sed -i 's/<0x50000 0xfb0000>/<0x50000 0x3fb0000>/g' target/linux/ramips/dts/mt7621_youhua_wr1200js.dts
           sed -i 's/16064k/65216k/g' target/linux/ramips/image/mt7621.mk
           
           git clone https://github.com/vernesong/OpenClash.git OpenClash-master
@@ -75,7 +75,7 @@ jobs:
 
       - name: Compile firmware
         run: |
-          make -j1 V=s
+          make V=s -j$(nproc) || make -j1 V=s
           echo "======================="
           echo "Space usage:"
           echo "======================="
